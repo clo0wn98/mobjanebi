@@ -1,9 +1,7 @@
 services:
   - type: web
     name: mobjanebi
-    runtime: dotnet
-    buildCommand: "cd EShop && dotnet publish -c Release -o ../publish"
-    publishDir: "publish"
+    dockerfilePath: Dockerfile
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
