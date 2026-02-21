@@ -1,0 +1,176 @@
+@model EShop.Models.HomeViewModel
+@{
+    ViewData["Title"] = "خانه";
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>به فروشگاه آنلاین خوش آمدید</h1>
+        <p>محصولات شگفت‌انگیز با قیمت‌های باورنکردنی</p>
+        <a href="/Products" class="hero-btn">خرید کنید <i class="fas fa-arrow-left"></i></a>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>خرید بر اساس دسته‌بندی</h2>
+            <div class="line"></div>
+            <p>از دسته‌بندی‌های متنوع ما دیدن کنید</p>
+        </div>
+        <div class="categories-grid">
+            @foreach (var category in Model.Categories)
+            {
+                <a href="/Products?categoryId=@category.Id" class="category-card">
+                    <img src="@category.ImageUrl" alt="@category.Name" onerror="this.src='https://picsum.photos/seed/category/@category.Id/400/300'" />
+                    <div class="category-overlay">
+                        <h3>@category.Name</h3>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products">
+    <div class="container">
+        <div class="section-title">
+            <h2>محصولات ویژه</h2>
+            <div class="line"></div>
+            <p>انتخاب‌های خاص برای شما</p>
+        </div>
+        <div class="products-grid">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <div class="product-card" onclick="window.location='/Products/Details/@product.Id'" style="cursor: pointer;">
+                    <div class="product-image">
+                        <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='https://picsum.photos/seed/product/@product.Id/400/400'" />
+                        @if (product.DiscountPrice.HasValue)
+                        {
+                            <span class="product-badge">تخفیف</span>
+                        }
+                        @if (product.IsFeatured)
+                        {
+                            <span class="product-badge" style="left:auto;right:15px;background:var(--primary-navy);">ویژه</span>
+                        }
+                        <div class="product-actions">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" onclick="event.stopPropagation();">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@product.Id" />
+                                <button type="submit" title="افزودن به سبد"><i class="fas fa-shopping-cart"></i></button>
+                            </form>
+                            <a href="/Products/Details/@product.Id" title="مشاهده جزئیات" onclick="event.stopPropagation();"><i class="fas fa-eye"></i></a>
+                            <button title="علاقه‌مندی‌ها" onclick="event.stopPropagation();"><i class="fas fa-heart"></i></button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">@product.Category?.Name</div>
+                        <h3 class="product-name">@product.Name</h3>
+                        <div class="product-price">
+                            <span class="current-price">@((product.DiscountPrice ?? product.Price).ToString("N0")) تومان</span>
+                            @if (product.DiscountPrice.HasValue)
+                            {
+                                <span class="original-price">@product.Price.ToString("N0") تومان</span>
+                            }
+                        </div>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(۴.۵)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-3">
+            <a href="/Products" class="btn btn-primary">مشاهده همه محصولات <i class="fas fa-arrow-left"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Products -->
+<section class="latest-products">
+    <div class="container">
+        <div class="section-title">
+            <h2>جدیدترین محصولات</h2>
+            <div class="line"></div>
+            <p>محصولات جدید ما را ببینید</p>
+        </div>
+        <div class="products-grid">
+            @foreach (var product in Model.LatestProducts.Take(4))
+            {
+                <div class="product-card" onclick="window.location='/Products/Details/@product.Id'" style="cursor: pointer;">
+                    <div class="product-image">
+                        <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='https://picsum.photos/seed/product/@product.Id/400/400'" />
+                        @if (product.DiscountPrice.HasValue)
+                        {
+                            <span class="product-badge">تخفیف</span>
+                        }
+                        <div class="product-actions">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" onclick="event.stopPropagation();">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@product.Id" />
+                                <button type="submit" title="افزودن به سبد"><i class="fas fa-shopping-cart"></i></button>
+                            </form>
+                            <a href="/Products/Details/@product.Id" title="مشاهده جزئیات" onclick="event.stopPropagation();"><i class="fas fa-eye"></i></a>
+                            <button title="علاقه‌مندی‌ها" onclick="event.stopPropagation();"><i class="fas fa-heart"></i></button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">@product.Category?.Name</div>
+                        <h3 class="product-name">@product.Name</h3>
+                        <div class="product-price">
+                            <span class="current-price">@((product.DiscountPrice ?? product.Price).ToString("N0")) تومان</span>
+                            @if (product.DiscountPrice.HasValue)
+                            {
+                                <span class="original-price">@product.Price.ToString("N0") تومان</span>
+                            }
+                        </div>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(۴.۵)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section style="background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-light) 100%); padding: 60px 0; margin-top: 60px;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; text-align: center; color: white;">
+            <div>
+                <i class="fas fa-shipping-fast" style="font-size: 48px; color: var(--accent-orange); margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px;">ارسال رایگان</h3>
+                <p style="opacity: 0.8;">برای سفارش‌های بالای ۵۰۰ هزار تومان</p>
+            </div>
+            <div>
+                <i class="fas fa-undo" style="font-size: 48px; color: var(--accent-orange); margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px;">بازگشت آسان</h3>
+                <p style="opacity: 0.8;">۷ روز ضمانت بازگشت</p>
+            </div>
+            <div>
+                <i class="fas fa-lock" style="font-size: 48px; color: var(--accent-orange); margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px;">پرداخت امن</h3>
+                <p style="opacity: 0.8;">پرداخت ۱۰۰٪ امن</p>
+            </div>
+            <div>
+                <i class="fas fa-headset" style="font-size: 48px; color: var(--accent-orange); margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px;">پشتیبانی ۲۴/۷</h3>
+                <p style="opacity: 0.8;">پشتیبانی اختصاصی</p>
+            </div>
+        </div>
+    </div>
+</section>

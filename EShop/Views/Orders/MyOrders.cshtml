@@ -1,0 +1,73 @@
+@model List<EShop.Models.Order>
+@{
+    ViewData["Title"] = "سفارش‌های من";
+}
+
+<div class="container" style="padding: 60px 20px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-box"></i> سفارش‌های من</h1>
+
+    @if (Model.Any())
+    {
+        <div style="background: var(--white); border-radius: 15px; box-shadow: var(--shadow); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; direction: rtl;">
+                <thead>
+                    <tr style="background: var(--primary-navy); color: white;">
+                        <th style="padding: 15px; text-align: right;">شماره سفارش</th>
+                        <th style="padding: 15px; text-align: right;">تاریخ</th>
+                        <th style="padding: 15px; text-align: right;">مبلغ</th>
+                        <th style="padding: 15px; text-align: right;">وضعیت</th>
+                        <th style="padding: 15px; text-align: right;">پرداخت</th>
+                        <th style="padding: 15px; text-align: right;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr style="border-bottom: 1px solid var(--gray-light);">
+                            <td style="padding: 15px; font-weight: 600; color: var(--primary-navy);">#@order.Id</td>
+                            <td style="padding: 15px; color: var(--gray-dark);">@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td style="padding: 15px; font-weight: 600; color: var(--accent-orange);">@order.FinalAmount.ToString("N0") تومان</td>
+                            <td style="padding: 15px;">
+                                <span style="padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    @(order.OrderStatus == "Delivered" ? "background: #d4edda; color: #155724;" :
+                                      order.OrderStatus == "Pending" ? "background: #fff3cd; color: #856404;" :
+                                      order.OrderStatus == "Shipped" ? "background: #cce5ff; color: #004085;" :
+                                      "background: #f8d7da; color: #721c24");">
+                                    @(order.OrderStatus == "Pending" ? "در انتظار" :
+                                      order.OrderStatus == "Processing" ? "در حال پردازش" :
+                                      order.OrderStatus == "Shipped" ? "ارسال شده" :
+                                      order.OrderStatus == "Delivered" ? "تحویل داده شده" : order.OrderStatus)
+                                </span>
+                            </td>
+                            <td style="padding: 15px;">
+                                <span style="padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    @(order.PaymentStatus == "Paid" ? "background: #d4edda; color: #155724;" :
+                                      order.PaymentStatus == "Pending" ? "background: #fff3cd; color: #856404;" :
+                                      "background: #f8d7da; color: #721c24");">
+                                    @(order.PaymentStatus == "Paid" ? "پرداخت شده" :
+                                      order.PaymentStatus == "Pending" ? "در انتظار" : "ناموفق")
+                                </span>
+                            </td>
+                            <td style="padding: 15px;">
+                                <a href="/Orders/OrderDetails/@order.Id" class="btn btn-outline" style="padding: 8px 15px; font-size: 14px;">
+                                    <i class="fas fa-eye"></i> مشاهده جزئیات
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: 15px; box-shadow: var(--shadow);">
+            <i class="fas fa-box-open" style="font-size: 80px; color: var(--gray); margin-bottom: 20px; opacity: 0.5;"></i>
+            <h2 style="color: var(--primary-navy); margin-bottom: 10px;">سفارشی ندارید</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">شما هنوز سفارشی ثبت نکرده‌اید.</p>
+            <a href="/Products" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> شروع خرید
+            </a>
+        </div>
+    }
+</div>

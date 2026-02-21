@@ -1,0 +1,197 @@
+@model EShop.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "تکمیل خرید";
+}
+
+<div class="container checkout-page">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-credit-card"></i> تکمیل خرید</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+        </div>
+    }
+
+    <div class="checkout-grid">
+        <div class="checkout-form">
+            <h3><i class="fas fa-user"></i> اطلاعات تماس</h3>
+            <form asp-controller="Orders" asp-action="PlaceOrder" method="post" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> در حال ثبت...'">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Order.FirstName"></label>
+                        <input asp-for="Order.FirstName" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Order.LastName"></label>
+                        <input asp-for="Order.LastName" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Order.Email"></label>
+                        <input asp-for="Order.Email" class="form-control" type="email" required />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Order.Phone"></label>
+                        <input asp-for="Order.Phone" class="form-control" required placeholder="09123456789" />
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;"><i class="fas fa-map-marker-alt"></i> آدرس ارسال</h3>
+                
+                <div class="form-group">
+                    <label asp-for="Order.Address"></label>
+                    <input asp-for="Order.Address" class="form-control" required />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Order.City"></label>
+                        <input asp-for="Order.City" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Order.PostalCode"></label>
+                        <input asp-for="Order.PostalCode" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Order.Country"></label>
+                    <input asp-for="Order.Country" class="form-control" required value="ایران" />
+                </div>
+
+                <h3 style="margin-top: 30px;"><i class="fas fa-credit-card"></i> روش پرداخت</h3>
+                
+                <div style="background: var(--gray-light); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; padding: 15px; background: var(--white); border-radius: 8px; border: 2px solid var(--accent-orange);">
+                            <input type="radio" name="paymentMethod" value="online" checked />
+                            <i class="fas fa-credit-card" style="color: var(--primary-navy);"></i>
+                            <span>پرداخت آنلاین</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; padding: 15px; background: var(--white); border-radius: 8px;">
+                            <input type="radio" name="paymentMethod" value="cod" />
+                            <i class="fas fa-money-bill-wave" style="color: var(--success);"></i>
+                            <span>پرداخت در محل</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <a href="/Cart" class="btn btn-outline">
+                        <i class="fas fa-arrow-right"></i> بازگشت به سبد خرید
+                    </a>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-check-circle"></i> ثبت نهایی سفارش
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="cart-summary">
+            <h3>خلاصه سفارش</h3>
+            @foreach (var item in Model.Cart.CartItems)
+            {
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--gray-light);">
+                    <img src="@item.Product?.ImageUrl" alt="@item.Product?.Name" 
+                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" 
+                         onerror="this.src='https://picsum.photos/seed/cartitem/@item.Id/60/60'" />
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 14px; color: var(--primary-navy);">@item.Product?.Name</h4>
+                        <p style="font-size: 12px; color: var(--gray);">تعداد: @item.Quantity</p>
+                        <p style="font-size: 14px; color: var(--accent-orange); font-weight: 600;">
+                            @((((item.Product?.DiscountPrice ?? item.Product?.Price) ?? 0) * item.Quantity).ToString("N0")) تومان
+                        </p>
+                    </div>
+                </div>
+            }
+            
+            <div class="summary-row">
+                <span>جمع کل</span>
+                <span>@(Model.Cart.TotalAmount.ToString("N0")) تومان</span>
+            </div>
+            <div class="summary-row">
+                <span>تخفیف</span>
+                <span id="discountAmount" style="color: var(--success);">0 تومان</span>
+            </div>
+            <div class="summary-row">
+                <span>هزینه ارسال</span>
+                <span style="color: var(--success);">رایگان</span>
+            </div>
+            <div class="summary-row">
+                <span>مالیات (۹٪)</span>
+                <span id="taxAmount">@((Model.Cart.TotalAmount * 0.09m).ToString("N0")) تومان</span>
+            </div>
+            <div class="summary-row total">
+                <span>مبلغ نهایی</span>
+                <span id="finalAmount">@((Model.Cart.TotalAmount * 1.09m).ToString("N0")) تومان</span>
+            </div>
+
+            <!-- Discount Code Section -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--gray-light);">
+                <h4 style="margin-bottom: 10px; color: var(--primary-navy);"><i class="fas fa-tags"></i> کد تخفیف</h4>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="discountCode" class="form-control" placeholder="کد تخفیف را وارد کنید" style="flex: 1;" />
+                    <button type="button" onclick="applyDiscountCode()" class="btn btn-primary">اعمال</button>
+                </div>
+                <p id="discountMessage" style="margin-top: 10px; font-size: 13px;"></p>
+                <input type="hidden" id="appliedDiscountCode" name="DiscountCode" value="" />
+                <input type="hidden" id="appliedDiscountAmount" name="DiscountAmount" value="0" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentDiscount = 0;
+    let currentDiscountCode = '';
+    const baseAmount = @Model.Cart.TotalAmount;
+
+    async function applyDiscountCode() {
+        const code = document.getElementById('discountCode').value;
+        const messageEl = document.getElementById('discountMessage');
+        
+        if (!code.trim()) {
+            messageEl.style.color = 'var(--danger)';
+            messageEl.textContent = 'لطفاً کد تخفیف را وارد کنید';
+            return;
+        }
+
+        const response = await fetch('/Admin/DiscountCodes/ValidateCode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `code=${encodeURIComponent(code)}&orderAmount=${baseAmount}`
+        });
+
+        const result = await response.json();
+        
+        if (result.valid) {
+            currentDiscount = result.discount;
+            currentDiscountCode = code.trim().toUpperCase();
+            document.getElementById('appliedDiscountCode').value = currentDiscountCode;
+            document.getElementById('appliedDiscountAmount').value = currentDiscount;
+            messageEl.style.color = 'var(--success)';
+            messageEl.textContent = result.message;
+            updateTotals();
+        } else {
+            messageEl.style.color = 'var(--danger)';
+            messageEl.textContent = result.message;
+        }
+    }
+
+    function updateTotals() {
+        const afterDiscount = baseAmount - currentDiscount;
+        const tax = afterDiscount * 0.09;
+        const final = afterDiscount + tax;
+
+        document.getElementById('discountAmount').textContent = currentDiscount.toLocaleString('en-US') + ' تومان';
+        document.getElementById('taxAmount').textContent = tax.toLocaleString('en-US') + ' تومان';
+        document.getElementById('finalAmount').textContent = final.toLocaleString('en-US') + ' تومان';
+    }
+</script>

@@ -1,0 +1,145 @@
+@model IEnumerable<EShop.Models.Product>
+@{
+    ViewData["Title"] = "محصولات";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 30px;">
+        <!-- Sidebar -->
+        <aside style="background: var(--white); padding: 25px; border-radius: 15px; box-shadow: var(--shadow); height: fit-content;">
+            <h3 style="color: var(--primary-navy); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--gray-light);">دسته‌بندی‌ها</h3>
+            <ul style="list-style: none;">
+                <li style="margin-bottom: 10px;">
+                    <a href="/Products" style="display: block; padding: 10px; border-radius: 5px; color: @(ViewBag.CurrentCategory == null ? "var(--accent-orange)" : "var(--gray-dark)"); font-weight: @(ViewBag.CurrentCategory == null ? "600" : "400");">
+                        <i class="fas fa-th-large" style="margin-right: 10px;"></i>همه محصولات
+                    </a>
+                </li>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var category in ViewBag.Categories as List<EShop.Models.Category>)
+                    {
+                        <li style="margin-bottom: 10px;">
+                            <a href="/Products?categoryId=@category.Id" style="display: block; padding: 10px; border-radius: 5px; color: @(ViewBag.CurrentCategory == category?.Id ? "var(--accent-orange)" : "var(--gray-dark)"); font-weight: @(ViewBag.CurrentCategory == category?.Id ? "600" : "400");">
+                                <i class="fas fa-angle-right" style="margin-right: 10px;"></i>@category.Name
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+
+            <h3 style="color: var(--primary-navy); margin: 30px 0 20px; padding-bottom: 15px; border-bottom: 2px solid var(--gray-light);">مرتب‌سازی</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="/Products?sortBy=name&categoryId=@ViewBag.CurrentCategory&searchTerm=@ViewBag.CurrentSearch" 
+                   style="padding: 10px; border-radius: 5px; background: @(ViewBag.CurrentSort == "name" ? "var(--accent-orange)" : "var(--gray-light)"); color: @(ViewBag.CurrentSort == "name" ? "white" : "var(--gray-dark)");">
+                    <i class="fas fa-sort-alpha-down" style="margin-right: 10px;"></i>نام
+                </a>
+                <a href="/Products?sortBy=price_low&categoryId=@ViewBag.CurrentCategory&searchTerm=@ViewBag.CurrentSearch" 
+                   style="padding: 10px; border-radius: 5px; background: @(ViewBag.CurrentSort == "price_low" ? "var(--accent-orange)" : "var(--gray-light)"); color: @(ViewBag.CurrentSort == "price_low" ? "white" : "var(--gray-dark)");">
+                    <i class="fas fa-arrow-up" style="margin-right: 10px;"></i>قیمت: کم به زیاد
+                </a>
+                <a href="/Products?sortBy=price_high&categoryId=@ViewBag.CurrentCategory&searchTerm=@ViewBag.CurrentSearch" 
+                   style="padding: 10px; border-radius: 5px; background: @(ViewBag.CurrentSort == "price_high" ? "var(--accent-orange)" : "var(--gray-light)"); color: @(ViewBag.CurrentSort == "price_high" ? "white" : "var(--gray-dark)");">
+                    <i class="fas fa-arrow-down" style="margin-right: 10px;"></i>قیمت: زیاد به کم
+                </a>
+                <a href="/Products?sortBy=newest&categoryId=@ViewBag.CurrentCategory&searchTerm=@ViewBag.CurrentSearch" 
+                   style="padding: 10px; border-radius: 5px; background: @(ViewBag.CurrentSort == "newest" ? "var(--accent-orange)" : "var(--gray-light)"); color: @(ViewBag.CurrentSort == "newest" ? "white" : "var(--gray-dark)");">
+                    <i class="fas fa-clock" style="margin-right: 10px;"></i>جدیدترین
+                </a>
+            </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="color: var(--primary-navy); font-size: 28px;">
+                    @if (ViewBag.CurrentCategory != null)
+                    {
+                        @((ViewBag.Categories as List<EShop.Models.Category>)?.FirstOrDefault(c => c.Id == ViewBag.CurrentCategory)?.Name)
+                    }
+                    else
+                    {
+                        @:All Products
+                    }
+                </h1>
+                <span style="color: var(--gray);">@Model.Count() products found</span>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="products-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                    @foreach (var product in Model)
+                    {
+                        <div class="product-card" onclick="window.location='/Products/Details/@product.Id'" style="cursor: pointer;">
+                            <div class="product-image">
+                                <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='https://picsum.photos/seed/product/@product.Id/400/400'" />
+                                @if (product.DiscountPrice.HasValue)
+                                {
+                                    <span class="product-badge">تخفیف</span>
+                                }
+                                @if (product.IsFeatured)
+                                {
+                                    <span class="product-badge" style="left:auto;right:15px;background:var(--primary-navy);">ویژه</span>
+                                }
+                                <div class="product-actions">
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post" onclick="event.stopPropagation();">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <button type="submit" title="افزودن به سبد"><i class="fas fa-shopping-cart"></i></button>
+                                    </form>
+                                    <a href="/Products/Details/@product.Id" title="مشاهده" onclick="event.stopPropagation();"><i class="fas fa-eye"></i></a>
+                                    <button title="علاقه‌مندی" onclick="event.stopPropagation();"><i class="fas fa-heart"></i></button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-category">@product.Category?.Name</div>
+                                <h3 class="product-name">@product.Name</h3>
+                                <div class="product-price">
+                                    <span class="current-price">@((product.DiscountPrice ?? product.Price).ToString("N0")) تومان</span>
+                                    @if (product.DiscountPrice.HasValue)
+                                    {
+                                        <span class="original-price">@product.Price.ToString("N0") تومان</span>
+                                    }
+                                </div>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span>(4.5)</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <div class="pagination">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            @if (i == ViewBag.CurrentPage)
+                            {
+                                <span class="active">@i</span>
+                            }
+                            else
+                            {
+                                <a href="/Products?pageNumber=@i&categoryId=@ViewBag.CurrentCategory&searchTerm=@ViewBag.CurrentSearch&sortBy=@ViewBag.CurrentSort">@i</a>
+                            }
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: 15px;">
+                    <i class="fas fa-search" style="font-size: 64px; color: var(--gray); margin-bottom: 20px;"></i>
+                    <h2 style="color: var(--primary-navy); margin-bottom: 10px;">No Products Found</h2>
+                    <p style="color: var(--gray);">Try adjusting your search or filter criteria</p>
+                    <a href="/Products" class="btn btn-primary mt-3">View All Products</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

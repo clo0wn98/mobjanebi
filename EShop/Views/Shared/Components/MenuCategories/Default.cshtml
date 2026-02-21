@@ -1,0 +1,6 @@
+@model List<EShop.Models.Category>
+
+@foreach (var category in Model)
+{
+    <li><a href="/Products?categoryId=@category.Id">@category.Name</a></li>
+}

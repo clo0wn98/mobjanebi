@@ -1,0 +1,131 @@
+@model EShop.Models.Product
+@{
+    ViewData["Title"] = "ویرایش محصول";
+}
+
+<div class="container" style="padding: 40px 20px; max-width: 900px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-edit"></i> ویرایش محصول</h1>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 30px; box-shadow: var(--shadow);">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SKU">کد محصول (SKU)</label>
+                    <input asp-for="SKU" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="CategoryId"></label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ImageUrl"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="@Model.Name" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-top: 10px;" onerror="this.src='https://picsum.photos/seed/@Model.Id/100/100'" />
+                    }
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Price">قیمت اصلی (تومان)</label>
+                    <input asp-for="Price" class="form-control" type="number" step="1000" required />
+                </div>
+                <div class="form-group">
+                    <label asp-for="DiscountPrice">قیمت با تخفیف (تومان)</label>
+                    <input asp-for="DiscountPrice" class="form-control" type="number" step="1000" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Stock">موجودی انبار</label>
+                    <input asp-for="Stock" class="form-control" type="number" />
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 35px;">
+                        <input asp-for="IsFeatured" />
+                        <span>محصول ویژه باشد</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Existing Attributes -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 15px;">
+                    <i class="fas fa-tags"></i> ویژگی‌های فعلی
+                </h3>
+                @if (Model.Attributes != null && Model.Attributes.Any())
+                {
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                        @foreach (var attr in Model.Attributes)
+                        {
+                            <span style="background: var(--gray-light); padding: 8px 15px; border-radius: 20px; font-size: 14px;">
+                                <strong>@attr.Name:</strong> @attr.Value
+                            </span>
+                        }
+                    </div>
+                }
+                
+                <h4 style="margin: 20px 0 10px; color: var(--primary-navy);">افزودن ویژگی‌های جدید</h4>
+                <div id="attributesContainer">
+                    <div class="form-row attribute-row" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>نام ویژگی</label>
+                            <input type="text" name="attributeNames" class="form-control" placeholder="مثال: رنگ" />
+                        </div>
+                        <div class="form-group">
+                            <label>مقدار</label>
+                            <input type="text" name="attributeValues" class="form-control" placeholder="مثال: آبی" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addAttribute()" class="btn btn-outline" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> افزودن ویژگی دیگر
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> به‌روزرسانی محصول</button>
+                <a href="/Admin/Products" class="btn btn-outline"><i class="fas fa-times"></i> انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addAttribute() {
+        const container = document.getElementById('attributesContainer');
+        const newRow = document.createElement('div');
+        newRow.className = 'form-row attribute-row';
+        newRow.style.marginBottom = '10px';
+        newRow.innerHTML = `
+            <div class="form-group">
+                <label>نام ویژگی</label>
+                <input type="text" name="attributeNames" class="form-control" placeholder="مثال: سایز" />
+            </div>
+            <div class="form-group">
+                <label>مقدار</label>
+                <input type="text" name="attributeValues" class="form-control" placeholder="مثال: XL" />
+            </div>
+        `;
+        container.appendChild(newRow);
+    }
+</script>

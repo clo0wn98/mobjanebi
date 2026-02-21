@@ -1,0 +1,67 @@
+@model EShop.Models.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "ثبت‌نام";
+}
+
+<div class="auth-container">
+    <div class="auth-box">
+        <a href="/" class="logo">
+            <img src="~/logo.png" alt="MobJanebi" style="height: 50px;" />
+            <span style="margin-right: 10px; font-size: 24px; font-weight: 700; color: var(--primary-navy);">MobJanebi</span>
+        </a>
+        <h2>Create Account</h2>
+        <p>Join us and start shopping today</p>
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FirstName"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                    <span asp-validation-for="FirstName" class="text-danger" style="color: var(--danger); font-size: 12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                    <span asp-validation-for="LastName" class="text-danger" style="color: var(--danger); font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                <span asp-validation-for="Email" class="text-danger" style="color: var(--danger); font-size: 12px;"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" placeholder="Create a password" />
+                <span asp-validation-for="Password" class="text-danger" style="color: var(--danger); font-size: 12px;"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger" style="color: var(--danger); font-size: 12px;"></span>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-start;">
+                <input type="checkbox" id="terms" required style="margin-top: 4px; margin-right: 10px;" />
+                <label for="terms" style="font-size: 14px; color: var(--gray-dark); cursor: pointer;">
+                    I agree to the <a href="/Home/Privacy" style="color: var(--accent-orange);">Terms of Service</a> and <a href="/Home/Privacy" style="color: var(--accent-orange);">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 25px; color: var(--gray);">
+            <p>Already have an account? <a href="/Account/Login" style="color: var(--accent-orange); font-weight: 600;">Sign In</a></p>
+        </div>
+    </div>
+</div>

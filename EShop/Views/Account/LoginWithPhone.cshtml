@@ -1,0 +1,318 @@
+@model EShop.Models.Account.PhoneLoginViewModel
+@{
+    ViewData["Title"] = "ورود با شماره موبایل";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MobJanebi</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .phone-login-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .phone-login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .phone-login-logo img {
+            height: 60px;
+        }
+        .phone-login-logo h2 {
+            color: var(--primary-navy);
+            margin-top: 15px;
+            font-size: 24px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            width: 100px;
+            height: 4px;
+            background: var(--gray-light);
+            border-radius: 2px;
+            margin: 0 5px;
+        }
+        .step.active {
+            background: var(--accent-orange);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-navy);
+            font-weight: 600;
+        }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: var(--accent-orange);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--accent-orange-dark);
+        }
+        .btn-primary:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-light);
+        }
+        .divider span {
+            padding: 0 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: var(--accent-orange);
+            text-decoration: none;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .timer {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .resend-btn {
+            color: var(--accent-orange);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 14px;
+        }
+        .resend-btn:disabled {
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+        #step2 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-login-container">
+        <div class="phone-login-logo">
+            <a href="/"><img src="~/logo.png" alt="MobJanebi" /></a>
+            <h2>ورود با شماره موبایل</h2>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1Indicator"></div>
+            <div class="step" id="step2Indicator"></div>
+        </div>
+
+        <div asp-validation-summary="All" class="message message-error" style="display: none;"></div>
+
+        <!-- Step 1: Enter Phone Number -->
+        <div id="step1">
+            <form id="phoneForm">
+                <div class="form-group">
+                    <label>شماره موبایل</label>
+                    <input type="tel" id="phoneNumber" class="form-control" placeholder="09123456789" maxlength="11" required />
+                </div>
+                <button type="submit" class="btn btn-primary" id="sendCodeBtn">
+                    <i class="fas fa-sms"></i> ارسال کد تأیید
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 2: Enter Verification Code -->
+        <div id="step2">
+            <form asp-action="VerifyAndLogin" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="hiddenPhone" name="PhoneNumber" />
+                
+                <div class="message message-success" id="successMessage">
+                    کد تأیید به شماره <span id="displayPhone"></span> ارسال شد
+                </div>
+
+                <div class="form-group">
+                    <label>کد تأیید</label>
+                    <input type="text" id="verificationCode" name="VerificationCode" class="form-control" placeholder="کد ۶ رقمی" maxlength="6" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> ورود
+                </button>
+
+                <div class="timer">
+                    <span id="timerText">می‌توانید مجدداً کد ارسال کنید تا </span>
+                    <span id="countdown">60</span>
+                    <span>ثانیه</span>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button type="button" class="resend-btn" id="resendBtn" onclick="resendCode()" disabled>
+                        <i class="fas fa-redo"></i> ارسال مجدد کد
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="divider">
+            <span>یا</span>
+        </div>
+
+        <div class="back-link">
+            <a href="/Account/Login"><i class="fas fa-arrow-left"></i> ورود با ایمیل و رمز عبور</a>
+        </div>
+    </div>
+
+    <script>
+        let countdownInterval;
+        
+        document.getElementById('phoneForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phoneNumber').value;
+            const btn = document.getElementById('sendCodeBtn');
+            
+            if (phone.length < 10) {
+                alert('لطفاً شماره موبایل معتبر وارد کنید');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ارسال...';
+            
+            try {
+                const response = await fetch('/Account/SendVerificationCode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'PhoneNumber=' + encodeURIComponent(phone)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show step 2
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                    document.getElementById('step1Indicator').classList.remove('active');
+                    document.getElementById('step2Indicator').classList.add('active');
+                    document.getElementById('hiddenPhone').value = phone;
+                    document.getElementById('displayPhone').textContent = phone;
+                    
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Start countdown
+                    startCountdown();
+                    
+                    console.log('Debug Code: ' + result.debugCode); // Remove in production
+                } else {
+                    alert(result.message || 'خطا در ارسال کد');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sms"></i> ارسال کد تأیید';
+                }
+            } catch (error) {
+                console.error(error);
+                alert('خطا در ارسال کد');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sms"></i> ارسال کد تأیید';
+            }
+        });
+
+        function startCountdown() {
+            let seconds = 60;
+            document.getElementById('countdown').textContent = seconds;
+            document.getElementById('resendBtn').disabled = true;
+            document.getElementById('timerText').style.display = 'inline';
+            
+            countdownInterval = setInterval(function() {
+                seconds--;
+                document.getElementById('countdown').textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('resendBtn').disabled = false;
+                    document.getElementById('timerText').style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        function resendCode() {
+            const phone = document.getElementById('hiddenPhone').value;
+            if (phone) {
+                document.getElementById('phoneNumber').value = phone;
+                document.getElementById('phoneForm').dispatchEvent(new Event('submit'));
+            }
+        }
+    </script>
+</body>
+</html>

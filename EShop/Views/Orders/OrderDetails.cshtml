@@ -1,0 +1,156 @@
+@model EShop.Models.Order
+@{
+    ViewData["Title"] = "جزئیات سفارش";
+}
+
+<div class="container" style="padding: 60px 20px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <a href="/Orders/MyOrders" style="color: var(--primary-navy); text-decoration: none; margin-bottom: 20px; display: inline-block;">
+            <i class="fas fa-arrow-right"></i> بازگشت به سفارش‌ها
+        </a>
+        
+        <h1 style="color: var(--primary-navy); margin-bottom: 30px;">
+            <i class="fas fa-box"></i> جزئیات سفارش #@Model.Id
+        </h1>
+
+        <!-- Order Status -->
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow);">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center;">
+                <div>
+                    <i class="fas fa-clock" style="font-size: 30px; color: var(--gray); margin-bottom: 10px;"></i>
+                    <p style="color: var(--gray); font-size: 12px;">ثبت سفارش</p>
+                    <p style="color: var(--success); font-weight: bold;">&#10003;</p>
+                </div>
+                <div>
+                    <i class="fas fa-cog" style="font-size: 30px; color: @(Model.OrderStatus != "Pending" ? "var(--primary-navy)" : "var(--gray)"); margin-bottom: 10px;"></i>
+                    <p style="color: var(--gray); font-size: 12px;">پردازش</p>
+                    <p style="color: @(Model.OrderStatus != "Pending" ? "var(--success)" : "var(--gray)"); font-weight: bold;">@(Model.OrderStatus != "Pending" ? "&#10003;" : "&#9679;")</p>
+                </div>
+                <div>
+                    <i class="fas fa-shipping-fast" style="font-size: 30px; color: @(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "var(--primary-navy)" : "var(--gray)"); margin-bottom: 10px;"></i>
+                    <p style="color: var(--gray); font-size: 12px;">ارسال</p>
+                    <p style="color: @(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "var(--success)" : "var(--gray)"); font-weight: bold;">@(Model.OrderStatus == "Shipped" || Model.OrderStatus == "Delivered" ? "&#10003;" : "&#9679;")</p>
+                </div>
+                <div>
+                    <i class="fas fa-check-circle" style="font-size: 30px; color: @(Model.OrderStatus == "Delivered" ? "var(--success)" : "var(--gray)"); margin-bottom: 10px;"></i>
+                    <p style="color: var(--gray); font-size: 12px;">تحویل</p>
+                    <p style="color: @(Model.OrderStatus == "Delivered" ? "var(--success)" : "var(--gray)"); font-weight: bold;">@(Model.OrderStatus == "Delivered" ? "&#10003;" : "&#9679;")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Code -->
+        @if (!string.IsNullOrEmpty(Model.TrackingCode))
+        {
+            <div style="background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-light) 100%); border-radius: 15px; padding: 25px; margin-bottom: 20px; color: white;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-shipping-fast" style="font-size: 40px;"></i>
+                    <div>
+                        <p style="margin: 0; opacity: 0.8; font-size: 14px;">کد پستی (پیگیری)</p>
+                        <p style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 2px;">@Model.TrackingCode</p>
+                        @if (Model.ShippedDate.HasValue)
+                        {
+                            <p style="margin: 5px 0 0; opacity: 0.8; font-size: 12px;">تاریخ ارسال: @Model.ShippedDate.Value.ToString("yyyy/MM/dd HH:mm")</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Order Info -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 20px; border-bottom: 2px solid var(--accent-orange); padding-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> اطلاعات سفارش
+                </h3>
+                <p style="margin-bottom: 10px;"><strong>شماره سفارش:</strong> #@Model.Id</p>
+                <p style="margin-bottom: 10px;"><strong>تاریخ:</strong> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                <p style="margin-bottom: 10px;"><strong>وضعیت:</strong> 
+                    <span style="padding: 3px 10px; border-radius: 15px; font-size: 12px;
+                        @(Model.OrderStatus == "Delivered" ? "background: #d4edda; color: #155724;" :
+                          Model.OrderStatus == "Pending" ? "background: #fff3cd; color: #856404;" :
+                          "background: #cce5ff; color: #004085");">
+                        @(Model.OrderStatus == "Pending" ? "در انتظار" :
+                          Model.OrderStatus == "Processing" ? "در حال پردازش" :
+                          Model.OrderStatus == "Shipped" ? "ارسال شده" :
+                          Model.OrderStatus == "Delivered" ? "تحویل داده شده" : Model.OrderStatus)
+                    </span>
+                </p>
+                <p style="margin-bottom: 0;"><strong>پرداخت:</strong> 
+                    <span style="padding: 3px 10px; border-radius: 15px; font-size: 12px;
+                        @(Model.PaymentStatus == "Paid" ? "background: #d4edda; color: #155724;" : "background: #fff3cd; color: #856404;");">
+                        @(Model.PaymentStatus == "Paid" ? "پرداخت شده" : "در انتظار")
+                    </span>
+                </p>
+            </div>
+
+            <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 20px; border-bottom: 2px solid var(--accent-orange); padding-bottom: 10px;">
+                    <i class="fas fa-user"></i> اطلاعات مشتری
+                </h3>
+                <p style="margin-bottom: 10px;"><strong>نام:</strong> @Model.FirstName @Model.LastName</p>
+                <p style="margin-bottom: 10px;"><strong>شماره تماس:</strong> @Model.Phone</p>
+                <p style="margin-bottom: 10px;"><strong>ایمیل:</strong> @Model.Email</p>
+            </div>
+        </div>
+
+        <!-- Address -->
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow);">
+            <h3 style="color: var(--primary-navy); margin-bottom: 20px; border-bottom: 2px solid var(--accent-orange); padding-bottom: 10px;">
+                <i class="fas fa-map-marker-alt"></i> آدرس ارسال
+            </h3>
+            <p style="line-height: 1.8; color: var(--gray-dark);">
+                @Model.Address<br />
+                @Model.City - کد پستی: @Model.PostalCode<br />
+                @Model.Country
+            </p>
+        </div>
+
+        <!-- Order Items -->
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow);">
+            <h3 style="color: var(--primary-navy); margin-bottom: 20px; border-bottom: 2px solid var(--accent-orange); padding-bottom: 10px;">
+                <i class="fas fa-shopping-bag"></i> محصولات سفارش
+            </h3>
+            
+            @foreach (var item in Model.OrderItems)
+            {
+                <div style="display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--gray-light);">
+                    <img src="@item.Product?.ImageUrl" alt="@item.Product?.Name" 
+                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;"
+                         onerror="this.src='https://picsum.photos/seed/product@(item.ProductId)/80/80'" />
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 5px; color: var(--primary-navy);">@item.Product?.Name</h4>
+                        <p style="margin: 0; color: var(--gray); font-size: 14px;">تعداد: @item.Quantity</p>
+                    </div>
+                    <div style="text-align: left;">
+                        <p style="margin: 0; color: var(--accent-orange); font-weight: bold; font-size: 18px;">
+                            @((item.Price * item.Quantity).ToString("N0")) تومان
+                        </p>
+                        <p style="margin: 5px 0 0; color: var(--gray); font-size: 12px;">
+                            @item.Price.ToString("N0") تومان × @item.Quantity
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Total -->
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="color: var(--gray);">جمع کل:</span>
+                <span>@Model.TotalAmount.ToString("N0") تومان</span>
+            </div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: var(--success);">تخفیف:</span>
+                    <span style="color: var(--success);">-@Model.DiscountAmount.ToString("N0") تومان</span>
+                </div>
+            }
+            <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 2px solid var(--accent-orange); font-size: 20px; font-weight: bold;">
+                <span style="color: var(--primary-navy);">مبلغ قابل پرداخت:</span>
+                <span style="color: var(--accent-orange);">@Model.FinalAmount.ToString("N0") تومان</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+@model EShop.Models.ShoppingCartViewModel
+@{
+    ViewData["Title"] = "سبد خرید";
+}
+
+<div class="container cart-page">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-shopping-cart"></i> سبد خرید شما</h1>
+
+    @if (Model.CartItems.Any())
+    {
+        <div class="cart-grid">
+            <div class="cart-items">
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="@item.Product?.ImageUrl" alt="@item.Product?.Name" onerror="this.src='https://picsum.photos/seed/cartitem/@item.Id/100/100'" />
+                        </div>
+                        <div class="cart-item-details">
+                            <h4>@item.Product?.Name</h4>
+                            <p style="color: var(--gray); font-size: 14px;">@item.Product?.Category?.Name</p>
+                            <div class="cart-item-price">@(((item.Product?.DiscountPrice ?? item.Product?.Price) ?? 0).ToString("N0")) تومان</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                            <div class="quantity-control" style="display: flex; align-items: center; border: 2px solid var(--gray-light); border-radius: 8px; overflow: hidden;">
+                                <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" @(item.Quantity <= 1 ? "disabled" : "") style="border: none; background: var(--off-white); padding: 10px 15px; cursor: pointer;">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </form>
+                                <span style="padding: 10px 15px; font-weight: 600;">@item.Quantity</span>
+                                <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" style="border: none; background: var(--off-white); padding: 10px 15px; cursor: pointer;">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <div style="font-weight: 700; color: var(--accent-orange); font-size: 18px;">
+                                @((((item.Product?.DiscountPrice ?? item.Product?.Price) ?? 0) * item.Quantity).ToString("N0")) تومان
+                            </div>
+                            <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px;">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-summary">
+                <h3>خلاصه سفارش</h3>
+                <div class="summary-row">
+                    <span>جمع کل (@Model.CartItems.Sum(i => i.Quantity) کالا)</span>
+                    <span>@(Model.TotalAmount.ToString("N0")) تومان</span>
+                </div>
+                <div class="summary-row">
+                    <span>هزینه ارسال</span>
+                    <span style="color: var(--success);">رایگان</span>
+                </div>
+                <div class="summary-row">
+                    <span>مالیات (تقریبی)</span>
+                    <span>@((Model.TotalAmount * 0.09m).ToString("N0")) تومان</span>
+                </div>
+                <div class="summary-row total">
+                    <span>مبلغ قابل پرداخت</span>
+                    <span>@((Model.TotalAmount * 1.09m).ToString("N0")) تومان</span>
+                </div>
+                <a href="/Orders/Checkout" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-lock"></i> تکمیل خرید
+                </a>
+                <a href="/Products" class="btn btn-outline" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-arrow-right"></i> ادامه خرید
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: 15px; box-shadow: var(--shadow);">
+            <i class="fas fa-shopping-cart" style="font-size: 80px; color: var(--gray); margin-bottom: 20px; opacity: 0.5;"></i>
+            <h2 style="color: var(--primary-navy); margin-bottom: 10px;">سبد خرید شما خالی است</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">به نظر می‌رسد هنوز چیزی به سبد خرید اضافه نکرده‌اید.</p>
+            <a href="/Products" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> شروع خرید
+            </a>
+        </div>
+    }
+</div>

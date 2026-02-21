@@ -1,0 +1,115 @@
+@model List<EShop.Models.Product>
+@{
+    ViewData["Title"] = "مدیریت محصولات";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: var(--primary-navy);"><i class="fas fa-box"></i> مدیریت محصولات</h1>
+        <a href="/Admin/Products/Create" class="btn btn-primary"><i class="fas fa-plus"></i> افزودن محصول جدید</a>
+    </div>
+
+    <!-- Filters -->
+    <div style="background: var(--white); border-radius: 15px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;">
+        <form asp-action="Index" method="get" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--primary-navy);">جستجو</label>
+                <input type="text" name="searchTerm" value="@ViewBag.CurrentSearch" class="form-control" placeholder="نام محصول..." />
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--primary-navy);">دسته‌بندی</label>
+                <select name="categoryId" class="form-control">
+                    <option value="">همه دسته‌بندی‌ها</option>
+                    @foreach (var cat in ViewBag.Categories as List<EShop.Models.Category>)
+                    {
+                        <option value="@cat.Id" selected="@(ViewBag.CurrentCategory == cat.Id ? "selected" : null)">@cat.Name</option>
+                    }
+                </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> جستجو</button>
+                <a href="/Admin/Products" class="btn btn-outline" style="margin-right: 10px;"><i class="fas fa-times"></i> حذف فیلتر</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Products Table -->
+    <div style="background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-navy); color: white;">
+                    <th style="padding: 15px; text-align: right;">تصویر</th>
+                    <th style="padding: 15px; text-align: right;">نام محصول</th>
+                    <th style="padding: 15px; text-align: right;">دسته‌بندی</th>
+                    <th style="padding: 15px; text-align: right;">قیمت</th>
+                    <th style="padding: 15px; text-align: right;">موجودی</th>
+                    <th style="padding: 15px; text-align: right;">وضعیت</th>
+                    <th style="padding: 15px; text-align: right;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--gray-light);">
+                        <td style="padding: 15px;">
+                            <img src="@product.ImageUrl" alt="@product.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://picsum.photos/seed/@product.Id/60/60'" />
+                        </td>
+                        <td style="padding: 15px;">
+                            <strong style="color: var(--primary-navy);">@product.Name</strong>
+                            @if (!string.IsNullOrEmpty(product.SKU))
+                            {
+                                <br /><span style="font-size: 12px; color: var(--gray);">SKU: @product.SKU</span>
+                            }
+                            @if (product.IsFeatured)
+                            {
+                                <span style="background: var(--accent-orange); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 8px;">ویژه</span>
+                            }
+                        </td>
+                        <td style="padding: 15px; color: var(--gray);">@product.Category?.Name</td>
+                        <td style="padding: 15px;">
+                            @if (product.DiscountPrice.HasValue)
+                            {
+                                <div>
+                                    <span style="color: var(--accent-orange); font-weight: 600;">@product.DiscountPrice.Value.ToString("N0") تومان</span>
+                                    <br /><span style="color: var(--gray); text-decoration: line-through; font-size: 13px;">@product.Price.ToString("N0") تومان</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span style="color: var(--accent-orange); font-weight: 600;">@product.Price.ToString("N0") تومان</span>
+                            }
+                        </td>
+                        <td style="padding: 15px;">
+                            <span style="color: @(product.Stock > 0 ? "var(--success)" : "var(--danger)");">
+                                @(product.Stock > 0 ? product.Stock.ToString() + " عدد" : "ناموجود")
+                            </span>
+                        </td>
+                        <td style="padding: 15px;">
+                            @if (product.Stock > 10)
+                            {
+                                <span style="background: #d4edda; color: #155724; padding: 4px 10px; border-radius: 15px; font-size: 12px;">موجود</span>
+                            }
+                            else if (product.Stock > 0)
+                            {
+                                <span style="background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 15px; font-size: 12px;">کم</span>
+                            }
+                            else
+                            {
+                                <span style="background: #f8d7da; color: #721c24; padding: 4px 10px; border-radius: 15px; font-size: 12px;">ناموجود</span>
+                            }
+                        </td>
+                        <td style="padding: 15px;">
+                            <a href="/Admin/Products/Edit/@product.Id" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;"><i class="fas fa-edit"></i></a>
+                            <a href="/Admin/Products/Details/@product.Id" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;"><i class="fas fa-eye"></i></a>
+                            <a href="/Admin/Products/Delete/@product.Id" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px; background: var(--danger); border-color: var(--danger); color: white;"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="/Admin" class="btn btn-outline"><i class="fas fa-arrow-right"></i> بازگشت به داشبورد</a>
+    </div>
+</div>

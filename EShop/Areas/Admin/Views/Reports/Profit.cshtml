@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "سود و زیان";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-coins"></i> گزارش سود و زیان</h1>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow); margin-bottom: 30px;">
+        <form method="get" style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: var(--primary-navy);">از تاریخ</label>
+                <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control" />
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: var(--primary-navy);">تا تاریخ</label>
+                <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> فیلتر</button>
+        </form>
+    </div>
+
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
+        <div style="background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); padding: 25px; border-radius: 15px; color: white; box-shadow: var(--shadow);">
+            <i class="fas fa-dollar-sign" style="font-size: 32px; color: white; margin-bottom: 15px;"></i>
+            <h3 style="font-size: 32px; margin-bottom: 5px;">@(((decimal)ViewBag.TotalRevenue).ToString("N0"))</h3>
+            <p style="opacity: 0.8;">درآمد کل (تومان)</p>
+        </div>
+        <div style="background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-light) 100%); padding: 25px; border-radius: 15px; color: white; box-shadow: var(--shadow);">
+            <i class="fas fa-chart-line" style="font-size: 32px; color: var(--accent-orange); margin-bottom: 15px;"></i>
+            <h3 style="font-size: 32px; margin-bottom: 5px;">@(((decimal)ViewBag.EstimatedProfit).ToString("N0"))</h3>
+            <p style="opacity: 0.8;">سود تخمینی (تومان)</p>
+        </div>
+        <div style="background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-light) 100%); padding: 25px; border-radius: 15px; color: white; box-shadow: var(--shadow);">
+            <i class="fas fa-shopping-bag" style="font-size: 32px; color: white; margin-bottom: 15px;"></i>
+            <h3 style="font-size: 32px; margin-bottom: 5px;">@ViewBag.OrdersCount</h3>
+            <p style="opacity: 0.8;">تعداد سفارش‌ها</p>
+        </div>
+    </div>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+        <h3 style="color: var(--primary-navy); margin-bottom: 20px;">توضیحات</h3>
+        <p style="line-height: 1.8; color: var(--gray-dark);">
+            سود تخمینی بر اساس ۴۰٪ حاشیه سود محاسبه شده است. این عدد صرفاً یک تخمین می‌باشد و ممکن است با سود واقعی متفاوت باشد.
+            برای محاسبه دقیق‌تر، هزینه‌های واقعی هر محصول باید در سیستم ثبت شود.
+        </p>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/Admin/Reports" class="btn btn-outline"><i class="fas fa-arrow-right"></i> بازگشت به گزارشات</a>
+    </div>
+</div>

@@ -1,0 +1,247 @@
+@model EShop.Models.Product
+@{
+    ViewData["Title"] = "ویرایش محصول";
+}
+
+<div class="container" style="padding: 40px 20px; max-width: 900px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-edit"></i> ویرایش محصول</h1>
+    
+    @if (ViewBag.Debug != null)
+    {
+        <div style="background: #ffffcc; border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 12px; direction: ltr;">
+            <strong>DEBUG:</strong> @ViewBag.Debug
+        </div>
+    }
+
+    <div style="background: var(--white); border-radius: 15px; padding: 30px; box-shadow: var(--shadow);">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>نام محصول *</label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label>کد محصول (SKU)</label>
+                    <input asp-for="SKU" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>توضیحات</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>دسته‌بندی</label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label>قیمت اصلی (تومان) *</label>
+                    <input asp-for="Price" class="form-control" type="number" step="1000" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>قیمت با تخفیف (تومان)</label>
+                    <input asp-for="DiscountPrice" class="form-control" type="number" step="1000" />
+                </div>
+                <div class="form-group">
+                    <label>موجودی انبار</label>
+                    <input asp-for="Stock" class="form-control" type="number" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input asp-for="IsFeatured" type="checkbox" />
+                    <span>محصول ویژه باشد</span>
+                </label>
+            </div>
+
+            <!-- Main Image -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-image"></i> تصویر اصلی محصول
+                </h3>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>انتخاب تصویر جدید:</strong></p>
+                    <input type="file" name="MainImage" accept="image/*" class="form-control" style="padding: 10px;" />
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <p style="margin-top: 15px; margin-bottom: 10px; color: #666;">تصویر فعلی:</p>
+                        <div style="position: relative; display: inline-block;">
+                            <img src="@Model.ImageUrl" alt="@Model.Name" style="max-width: 200px; border-radius: 8px;" onerror="this.src='https://picsum.photos/seed/@Model.Id/200/200'" />
+                            <a href="/Admin/Products/DeleteMainImage/@Model.Id" 
+                               onclick="return confirm('آیا تصویر اصلی حذف شود؟')"
+                               style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border-radius: 50%; width: 28px; height: 28px; text-align: center; line-height: 28px; font-size: 14px;"
+                               title="حذف تصویر">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="margin-top: 15px; margin-bottom: 10px; color: #666;">یا آدرس تصویر:</p>
+                        <input type="text" name="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                    }
+                </div>
+            </div>
+
+            <!-- Multiple Images -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-images"></i> تصاویر بیشتر
+                </h3>
+                
+                <!-- Existing Images -->
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: #666; margin-bottom: 10px;"><strong>تصاویر فعلی:</strong></p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                            @foreach (var img in Model.Images.Where(i => !i.IsMain).OrderBy(i => i.Order))
+                            {
+                                <div style="position: relative; display: inline-block;">
+                                    <img src="@img.ImageUrl" alt="تصویر محصول" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;" 
+                                         onerror="this.src='https://picsum.photos/seed/@img.Id/120/120'" />
+                                    <a href="/Admin/Products/DeleteImage/@img.Id" 
+                                       onclick="return confirm('آیا این تصویر حذف شود؟')"
+                                       style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 12px;"
+                                       title="حذف تصویر">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>افزودن تصاویر جدید:</strong></p>
+                    <input type="file" name="AdditionalImages" accept="image/*" multiple class="form-control" style="padding: 10px;" />
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">می‌توانید چندین تصویر همزمان انتخاب کنید</p>
+                </div>
+            </div>
+
+            <!-- Video -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-video"></i> ویدئوی محصول
+                </h3>
+                
+                <!-- Existing Videos -->
+                @if (Model.Videos != null && Model.Videos.Any())
+                {
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: #666; margin-bottom: 10px;"><strong>ویدئوهای فعلی:</strong></p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                            @foreach (var video in Model.Videos)
+                            {
+                                <div style="position: relative; display: inline-block; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                                    <div style="width: 150px; height: 80px; background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-play-circle" style="color: white; font-size: 30px;"></i>
+                                    </div>
+                                    <p style="margin: 5px 0; font-size: 12px; color: #666;">@video.VideoUrl</p>
+                                    <a href="/Admin/Products/DeleteVideo/@video.Id" 
+                                       onclick="return confirm('آیا این ویدئو حذف شود؟')"
+                                       style="position: absolute; top: 0; right: 0; background: #dc3545; color: white; border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-size: 12px;"
+                                       title="حذف ویدئو">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>آپلود ویدئو جدید (حداکثر 100MB):</strong></p>
+                    <input type="file" name="ProductVideo" accept="video/*" class="form-control" style="padding: 10px;" />
+                    <p style="margin-top: 15px; margin-bottom: 10px; color: #666;">یا آدرس ویدئو:</p>
+                    <input name="VideoUrl" class="form-control" placeholder="https://youtube.com/..." />
+                </div>
+            </div>
+
+            <!-- Attributes -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 15px;">
+                    <i class="fas fa-tags"></i> ویژگی‌های محصول
+                </h3>
+                @if (Model.Attributes != null && Model.Attributes.Any())
+                {
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                        @foreach (var attr in Model.Attributes)
+                        {
+                            <span style="background: var(--gray-light); padding: 8px 15px; border-radius: 20px; font-size: 14px;">
+                                <strong>@attr.Name:</strong> @attr.Value
+                            </span>
+                        }
+                    </div>
+                }
+                
+                <h4 style="margin: 20px 0 10px; color: var(--primary-navy);">افزودن ویژگی‌های جدید</h4>
+                <div id="attributesContainer">
+                    <div class="form-row attribute-row" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>نام ویژگی</label>
+                            <input type="text" name="attributeNames" class="form-control" placeholder="مثال: رنگ" />
+                        </div>
+                        <div class="form-group">
+                            <label>مقدار</label>
+                            <input type="text" name="attributeValues" class="form-control" placeholder="مثال: آبی" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addAttribute()" class="btn btn-outline" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> افزودن ویژگی دیگر
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> به‌روزرسانی محصول</button>
+                <a href="/Admin/Products" class="btn btn-outline"><i class="fas fa-times"></i> انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addAttribute() {
+        var container = document.getElementById('attributesContainer');
+        var newRow = document.createElement('div');
+        newRow.className = 'form-row attribute-row';
+        newRow.style.marginBottom = '10px';
+        newRow.innerHTML = '<div class="form-group"><label>نام ویژگی</label><input type="text" name="attributeNames" class="form-control" placeholder="مثال: سایز" /></div><div class="form-group"><label>مقدار</label><input type="text" name="attributeValues" class="form-control" placeholder="مثال: XL" /></div>';
+        container.appendChild(newRow);
+    }
+    
+    // Debug form submission
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        var mainImage = document.querySelector('input[name="MainImage"]').files[0];
+        var additionalImages = document.querySelector('input[name="AdditionalImages"]').files;
+        
+        console.log('=== FORM SUBMIT DEBUG ===');
+        console.log('MainImage:', mainImage ? mainImage.name + ' (' + mainImage.size + ' bytes)' : 'null');
+        console.log('AdditionalImages count:', additionalImages.length);
+        for(var i=0; i<additionalImages.length; i++) {
+            console.log('AdditionalImages['+i+']:', additionalImages[i].name);
+        }
+        console.log('=========================');
+    });
+    
+    // Show debug from server
+    @if (TempData["Debug"] != null)
+    {
+        <text>
+        console.log('=== SERVER DEBUG ===');
+        console.log('@TempData["Debug"]');
+        console.log('====================');
+        </text>
+    }
+</script>

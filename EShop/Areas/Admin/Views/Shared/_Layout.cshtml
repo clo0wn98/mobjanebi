@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - پنل مدیریت</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" />
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-navy-light) 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            right: 0;
+            top: 0;
+        }
+        .admin-sidebar h3 {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+            color: var(--accent-orange);
+        }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu > li { margin-bottom: 5px; }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-right: 3px solid var(--accent-orange);
+        }
+        .sidebar-menu a i {
+            width: 25px;
+            margin-left: 10px;
+            text-align: center;
+        }
+        .sidebar-submenu {
+            list-style: none;
+            padding-right: 20px;
+            display: none;
+        }
+        .sidebar-submenu.show { display: block; }
+        .sidebar-submenu a {
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+        .menu-category {
+            padding: 15px 20px 10px;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 15px;
+        }
+        .admin-content {
+            flex: 1;
+            margin-right: 280px;
+            background: var(--off-white);
+        }
+        .admin-header {
+            background: var(--white);
+            padding: 15px 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-main { padding: 30px; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <h3><i class="fas fa-store"></i> پنل مدیریت</h3>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Admin"><i class="fas fa-tachometer-alt"></i> داشبورد</a>
+                </li>
+            </ul>
+
+            <div class="menu-category">فروشگاه</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" onclick="toggleSubmenu('products-menu'); return false;">
+                        <i class="fas fa-box"></i> محصولات
+                        <i class="fas fa-chevron-down" style="margin-right: auto; width: auto;"></i>
+                    </a>
+                    <ul id="products-menu" class="sidebar-submenu">
+                        <li><a href="/Admin/Products"><i class="fas fa-list"></i> همه محصولات</a></li>
+                        <li><a href="/Admin/Products/Create"><i class="fas fa-plus"></i> افزودن محصول</a></li>
+                        <li><a href="/Admin/Categories"><i class="fas fa-tags"></i> دسته‌بندی‌ها</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/Admin/Orders"><i class="fas fa-shopping-bag"></i> سفارش‌ها</a>
+                </li>
+            </ul>
+
+            <div class="menu-category">بازاریابی</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Admin/DiscountCodes"><i class="fas fa-percent"></i> کدهای تخفیف</a>
+                </li>
+            </ul>
+
+            <div class="menu-category">مشتریان</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Admin/Customers"><i class="fas fa-users"></i> لیست مشتریان</a>
+                </li>
+            </ul>
+
+            <div class="menu-category">گزارش‌ها</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Admin/Reports"><i class="fas fa-chart-line"></i> گزارش فروش</a>
+                </li>
+                <li>
+                    <a href="/Admin/Reports/Profit"><i class="fas fa-coins"></i> سود و زیان</a>
+                </li>
+            </ul>
+
+            <div class="menu-category">تنظیمات</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/Admin/Settings"><i class="fas fa-cog"></i> تنظیمات پیامک</a>
+                </li>
+            </ul>
+
+            <div class="menu-category" style="margin-top: auto;">
+                <a href="/" style="color: rgba(255,255,255,0.5);"><i class="fas fa-home"></i> بازگشت به سایت</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <header class="admin-header">
+                <h2 style="margin: 0; color: var(--primary-navy);">@ViewData["Title"]</h2>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <span style="color: var(--gray);">
+                        <i class="fas fa-user"></i>
+                        @User.Identity?.Name
+                    </span>
+                    <form asp-controller="Account" asp-action="Logout" asp-area="" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline" style="padding: 8px 15px;">
+                            <i class="fas fa-sign-out-alt"></i> خروج
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <main class="admin-main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function toggleSubmenu(id) {
+            const submenu = document.getElementById(id);
+            submenu.classList.toggle('show');
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

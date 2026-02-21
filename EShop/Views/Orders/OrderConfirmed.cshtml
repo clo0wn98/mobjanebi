@@ -1,0 +1,66 @@
+@model EShop.Models.Order
+@{
+    ViewData["Title"] = "ثبت سفارش موفق";
+}
+
+<div class="container" style="padding: 60px 20px;">
+    <div style="max-width: 600px; margin: 0 auto; text-align: center; background: var(--white); padding: 50px; border-radius: 20px; box-shadow: var(--shadow-lg);">
+        <div style="width: 100px; height: 100px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px;">
+            <i class="fas fa-check" style="font-size: 50px; color: white;"></i>
+        </div>
+        
+        <h1 style="color: var(--primary-navy); margin-bottom: 10px;">پرداخت موفق!</h1>
+        <p style="color: var(--gray); font-size: 18px; margin-bottom: 30px;">
+            سفارش شما با موفقیت ثبت شد. از خرید شما سپاسگزاریم.
+        </p>
+
+        <div style="background: var(--off-white); padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: right;">
+                <div>
+                    <p style="color: var(--gray); font-size: 14px;">شماره سفارش</p>
+                    <p style="color: var(--primary-navy); font-weight: 700; font-size: 18px;">#@Model.Id</p>
+                </div>
+                <div>
+                    <p style="color: var(--gray); font-size: 14px;">تاریخ سفارش</p>
+                    <p style="color: var(--primary-navy); font-weight: 600;">@Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                </div>
+                <div>
+                    <p style="color: var(--gray); font-size: 14px;">مبلغ قابل پرداخت</p>
+                    <p style="color: var(--accent-orange); font-weight: 700; font-size: 18px;">@Model.FinalAmount.ToString("N0") تومان</p>
+                </div>
+                <div>
+                    <p style="color: var(--gray); font-size: 14px;">روش پرداخت</p>
+                    <p style="color: var(--success); font-weight: 600;">پرداخت در محل</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: right; background: var(--off-white); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <h3 style="color: var(--primary-navy); margin-bottom: 15px;">آدرس ارسال</h3>
+            <p style="color: var(--gray-dark); line-height: 1.8;">
+                @Model.FirstName @Model.LastName<br />
+                @Model.Address<br />
+                @Model.City - کد پستی: @Model.PostalCode<br />
+                @Model.Country<br />
+                @Model.Email<br />
+                @Model.Phone
+            </p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <p style="color: var(--gray); font-size: 14px; margin-bottom: 10px;">
+                <i class="fas fa-envelope" style="color: var(--accent-orange);"></i>
+                یک پیامک تأیید به شماره @Model.Phone ارسال شد
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <a href="/Products" class="btn btn-outline">
+                <i class="fas fa-shopping-bag"></i> ادامه خرید
+            </a>
+            <a href="/Orders/OrderDetails/@Model.Id" class="btn btn-primary">
+                <i class="fas fa-box"></i> مشاهده سفارش
+            </a>
+        </div>
+    </div>
+</div>

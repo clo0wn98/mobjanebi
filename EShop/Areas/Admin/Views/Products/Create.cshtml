@@ -1,0 +1,145 @@
+@model EShop.Models.Product
+@{
+    ViewData["Title"] = "افزودن محصول";
+}
+
+<div class="container" style="padding: 40px 20px; max-width: 900px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-plus"></i> افزودن محصول جدید</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+        </div>
+    }
+
+    <div style="background: var(--white); border-radius: 15px; padding: 30px; box-shadow: var(--shadow);">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>نام محصول *</label>
+                    <input name="Name" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label>کد محصول (SKU)</label>
+                    <input name="SKU" class="form-control" placeholder="مثال: PRD-001" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>توضیحات</label>
+                <textarea name="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>دسته‌بندی *</label>
+                    <select name="CategoryId" asp-items="ViewBag.CategoryId" class="form-control">
+                        <option value="">-- انتخاب دسته‌بندی --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>قیمت اصلی (تومان) *</label>
+                    <input name="Price" class="form-control" type="number" step="1000" min="1000" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>قیمت با تخفیف (تومان)</label>
+                    <input name="DiscountPrice" class="form-control" type="number" step="1000" />
+                    <span style="color: var(--gray); font-size: 13px;">اختیاری</span>
+                </div>
+                <div class="form-group">
+                    <label>موجودی انبار</label>
+                    <input name="Stock" class="form-control" type="number" min="0" value="0" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input name="IsFeatured" type="checkbox" />
+                    <span>محصول ویژه باشد</span>
+                </label>
+            </div>
+
+            <!-- Main Image - Simple File Input -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-image"></i> تصویر اصلی محصول
+                </h3>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>تصویر اصلی:</strong></p>
+                    <input type="file" name="MainImage" accept="image/*" class="form-control" style="padding: 10px;" />
+                    <p style="margin-top: 10px; color: #666;">یا آدرس تصویر:</p>
+                    <input name="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                </div>
+            </div>
+
+            <!-- Multiple Images -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-images"></i> تصاویر بیشتر
+                </h3>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>انتخاب چند تصویر:</strong></p>
+                    <input type="file" name="AdditionalImages" accept="image/*" multiple class="form-control" style="padding: 10px;" />
+                    <p style="margin-top: 10px; color: #666; font-size: 12px;">می‌توانید چندین تصویر همزمان انتخاب کنید</p>
+                </div>
+            </div>
+
+            <!-- Video -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h3 style="color: #1a237e; margin-bottom: 15px;">
+                    <i class="fas fa-video"></i> ویدئوی محصول
+                </h3>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; border: 2px dashed #ccc;">
+                    <p style="margin-bottom: 10px; color: #666;"><strong>آپلود ویدئو (حداکثر 100MB):</strong></p>
+                    <input type="file" name="ProductVideo" accept="video/*" class="form-control" style="padding: 10px;" />
+                    <p style="margin-top: 15px; margin-bottom: 10px; color: #666;">یا آدرس ویدئو:</p>
+                    <input name="VideoUrl" class="form-control" placeholder="https://youtube.com/..." />
+                </div>
+            </div>
+
+            <!-- Attributes -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 15px;">
+                    <i class="fas fa-tags"></i> ویژگی‌های محصول
+                </h3>
+                <div id="attributesContainer">
+                    <div class="form-row attribute-row" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>نام ویژگی</label>
+                            <input type="text" name="attributeNames" class="form-control" placeholder="مثال: رنگ" />
+                        </div>
+                        <div class="form-group">
+                            <label>مقدار</label>
+                            <input type="text" name="attributeValues" class="form-control" placeholder="مثال: قرمز" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addAttribute()" class="btn btn-outline" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> افزودن ویژگی دیگر
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره محصول</button>
+                <a href="/Admin/Products" class="btn btn-outline"><i class="fas fa-times"></i> انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addAttribute() {
+        var container = document.getElementById('attributesContainer');
+        var newRow = document.createElement('div');
+        newRow.className = 'form-row attribute-row';
+        newRow.style.marginBottom = '10px';
+        newRow.innerHTML = '<div class="form-group"><label>نام ویژگی</label><input type="text" name="attributeNames" class="form-control" placeholder="مثال: سایز" /></div><div class="form-group"><label>مقدار</label><input type="text" name="attributeValues" class="form-control" placeholder="مثال: XL" /></div>';
+        container.appendChild(newRow);
+    }
+</script>

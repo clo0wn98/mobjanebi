@@ -1,0 +1,55 @@
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "مشتریان";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-users"></i> لیست مشتریان</h1>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow); margin-bottom: 30px;">
+        <form method="get" style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <input type="text" name="searchTerm" value="@ViewBag.CurrentSearch" placeholder="جستجوی مشتری..." class="form-control" style="max-width: 300px;" />
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> جستجو</button>
+        </form>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-navy); color: white;">
+                    <th style="padding: 12px; text-align: right;">ایمیل</th>
+                    <th style="padding: 12px; text-align: right;">نام کاربری</th>
+                    <th style="padding: 12px; text-align: right;">نقش</th>
+                    <th style="padding: 12px; text-align: right;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    var roles = ViewBag.UserRoles[user.Id] as List<string> ?? new List<string>();
+                    <tr style="border-bottom: 1px solid var(--gray-light);">
+                        <td style="padding: 12px;">@user.Email</td>
+                        <td style="padding: 12px;">@user.UserName</td>
+                        <td style="padding: 12px;">
+                            @foreach (var role in roles)
+                            {
+                                <span style="padding: 4px 10px; border-radius: 15px; font-size: 12px; background: var(--accent-orange); color: white; margin-left: 5px;">
+                                    @role
+                                </span>
+                            }
+                        </td>
+                        <td style="padding: 12px;">
+                            <a href="/Admin/Customers/Details/@user.Id" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;">مشاهده</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" style="padding: 20px; text-align: center; color: var(--gray);">
+                            هیچ مشتری یافت نشد
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

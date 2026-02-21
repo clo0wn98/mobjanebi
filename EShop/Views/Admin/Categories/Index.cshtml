@@ -1,0 +1,46 @@
+@model List<EShop.Models.Category>
+@{
+    ViewData["Title"] = "مدیریت دسته‌بندی‌ها";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: var(--primary-navy);"><i class="fas fa-tags"></i> دسته‌بندی‌ها</h1>
+        <a href="/Admin/Categories/Create" class="btn btn-primary"><i class="fas fa-plus"></i> افزودن دسته‌بندی</a>
+    </div>
+
+    <div style="background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-navy); color: white;">
+                    <th style="padding: 15px; text-align: left;">Image</th>
+                    <th style="padding: 15px; text-align: left;">Name</th>
+                    <th style="padding: 15px; text-align: left;">Description</th>
+                    <th style="padding: 15px; text-align: left;">Products</th>
+                    <th style="padding: 15px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--gray-light);">
+                        <td style="padding: 15px;">
+                            <img src="@category.ImageUrl" alt="@category.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://picsum.photos/seed/@category.Id/60/60'" />
+                        </td>
+                        <td style="padding: 15px;"><strong style="color: var(--primary-navy);">@category.Name</strong></td>
+                        <td style="padding: 15px; color: var(--gray);">@category.Description</td>
+                        <td style="padding: 15px;"><span style="background: var(--accent-orange); color: white; padding: 4px 12px; border-radius: 15px; font-size: 13px;">@category.Products.Count products</span></td>
+                        <td style="padding: 15px;">
+                            <a href="/Admin/Categories/Edit/@category.Id" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;"><i class="fas fa-edit"></i></a>
+                            <a href="/Admin/Categories/Delete/@category.Id" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px; background: var(--danger); border-color: var(--danger); color: white;"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="/Admin" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+</div>

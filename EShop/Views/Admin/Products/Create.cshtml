@@ -1,0 +1,115 @@
+@model EShop.Models.Product
+@{
+    ViewData["Title"] = "افزودن محصول";
+}
+
+<div class="container" style="padding: 40px 20px; max-width: 900px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-plus"></i> افزودن محصول جدید</h1>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 30px; box-shadow: var(--shadow);">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SKU">کد محصول (SKU)</label>
+                    <input asp-for="SKU" class="form-control" placeholder="مثال: PRD-001" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="CategoryId"></label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control">
+                        <option value="">-- انتخاب دسته‌بندی --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ImageUrl"></label>
+                    <input asp-for="ImageUrl" class="form-control" placeholder="https://picsum.photos/seed/productname/400/400" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Price">قیمت اصلی (تومان)</label>
+                    <input asp-for="Price" class="form-control" type="number" step="1000" required />
+                </div>
+                <div class="form-group">
+                    <label asp-for="DiscountPrice">قیمت با تخفیف (تومان)</label>
+                    <input asp-for="DiscountPrice" class="form-control" type="number" step="1000" />
+                    <span style="color: var(--gray); font-size: 13px;">اختیاری - اگر خالی باشد تخفیف ندارد</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Stock">موجودی انبار</label>
+                    <input asp-for="Stock" class="form-control" type="number" />
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 35px;">
+                        <input asp-for="IsFeatured" />
+                        <span>محصول ویژه باشد</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Product Attributes -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--gray-light);">
+                <h3 style="color: var(--primary-navy); margin-bottom: 15px;">
+                    <i class="fas fa-tags"></i> ویژگی‌های محصول (رنگ، سایز و...)
+                </h3>
+                <div id="attributesContainer">
+                    <div class="form-row attribute-row" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>نام ویژگی</label>
+                            <input type="text" name="attributeNames" class="form-control" placeholder="مثال: رنگ" />
+                        </div>
+                        <div class="form-group">
+                            <label>مقدار</label>
+                            <input type="text" name="attributeValues" class="form-control" placeholder="مثال: قرمز" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addAttribute()" class="btn btn-outline" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> افزودن ویژگی دیگر
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> ذخیره محصول</button>
+                <a href="/Admin/Products" class="btn btn-outline"><i class="fas fa-times"></i> انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function addAttribute() {
+        const container = document.getElementById('attributesContainer');
+        const newRow = document.createElement('div');
+        newRow.className = 'form-row attribute-row';
+        newRow.style.marginBottom = '10px';
+        newRow.innerHTML = `
+            <div class="form-group">
+                <label>نام ویژگی</label>
+                <input type="text" name="attributeNames" class="form-control" placeholder="مثال: سایز" />
+            </div>
+            <div class="form-group">
+                <label>مقدار</label>
+                <input type="text" name="attributeValues" class="form-control" placeholder="مثال: XL" />
+            </div>
+        `;
+        container.appendChild(newRow);
+    }
+</script>

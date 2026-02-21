@@ -1,0 +1,110 @@
+@model EShop.Models.Order
+@{
+    ViewData["Title"] = "جزئیات سفارش";
+}
+
+<div class="container" style="padding: 40px 20px;">
+    <h1 style="color: var(--primary-navy); margin-bottom: 30px;"><i class="fas fa-receipt"></i> سفارش شماره #@Model.Id</h1>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+            <h3 style="color: var(--primary-navy); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--gray-light);">اطلاعات سفارش</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <p style="color: var(--gray); font-size: 13px;">تاریخ سفارش</p>
+                    <p style="color: var(--primary-navy); font-weight: 600;">@Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                </div>
+                <div>
+                    <p style="color: var(--gray); font-size: 13px;">مبلغ کل</p>
+                    <p style="color: var(--accent-orange); font-weight: 700; font-size: 20px;">@Model.TotalAmount.ToString("N0") تومان</p>
+                </div>
+            </div>
+
+            <form asp-action="UpdateStatus" method="post" style="background: var(--off-white); padding: 20px; border-radius: 10px;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                
+                <div class="form-group">
+                    <label>وضعیت سفارش</label>
+                    <select name="orderStatus" class="form-control">
+                        <option value="Pending" selected="@(Model.OrderStatus == "Pending")">در انتظار</option>
+                        <option value="Processing" selected="@(Model.OrderStatus == "Processing")">در حال پردازش</option>
+                        <option value="Shipped" selected="@(Model.OrderStatus == "Shipped")">ارسال شده</option>
+                        <option value="Delivered" selected="@(Model.OrderStatus == "Delivered")">تحویل داده شده</option>
+                        <option value="Cancelled" selected="@(Model.OrderStatus == "Cancelled")">لغو شده</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>وضعیت پرداخت</label>
+                    <select name="paymentStatus" class="form-control">
+                        <option value="Pending" selected="@(Model.PaymentStatus == "Pending")">در انتظار</option>
+                        <option value="Paid" selected="@(Model.PaymentStatus == "Paid")">پرداخت شده</option>
+                        <option value="Refunded" selected="@(Model.PaymentStatus == "Refunded")">بازگشت داده شده</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>کد پستی (برای ارسال SMS به مشتری)</label>
+                    <input type="text" name="trackingCode" class="form-control" placeholder="کد پستی را وارد کنید" value="@Model.TrackingCode" />
+                    <span style="color: var(--gray); font-size: 12px;">با وارد کردن کد پستی، پیامک برای مشتری ارسال می‌شود</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> به‌روزرسانی و ارسال پیامک</button>
+            </form>
+        </div>
+
+        <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow);">
+            <h3 style="color: var(--primary-navy); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--gray-light);">اطلاعات مشتری</h3>
+            
+            <div style="line-height: 2;">
+                <p><i class="fas fa-user" style="color: var(--accent-orange); width: 20px;"></i> @Model.FirstName @Model.LastName</p>
+                <p><i class="fas fa-envelope" style="color: var(--accent-orange); width: 20px;"></i> @Model.Email</p>
+                <p><i class="fas fa-phone" style="color: var(--accent-orange); width: 20px;"></i> @Model.Phone</p>
+                <p><i class="fas fa-map-marker-alt" style="color: var(--accent-orange); width: 20px;"></i> @Model.Address, @Model.City, @Model.PostalCode</p>
+                <p><i class="fas fa-globe" style="color: var(--accent-orange); width: 20px;"></i> @Model.Country</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: var(--white); border-radius: 15px; padding: 25px; box-shadow: var(--shadow); margin-top: 30px;">
+        <h3 style="color: var(--primary-navy); margin-bottom: 20px;">محصولات سفارش</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-navy); color: white;">
+                    <th style="padding: 12px; text-align: right;">محصول</th>
+                    <th style="padding: 12px; text-align: right;">قیمت</th>
+                    <th style="padding: 12px; text-align: right;">تعداد</th>
+                    <th style="padding: 12px; text-align: right;">جمع</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr style="border-bottom: 1px solid var(--gray-light);">
+                        <td style="padding: 15px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="@item.Product?.ImageUrl" alt="@item.Product?.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://picsum.photos/seed/@item.ProductId/50/50'" />
+                                <span style="color: var(--primary-navy); font-weight: 500;">@item.Product?.Name</span>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; color: var(--gray);">@item.Price.ToString("N0") تومان</td>
+                        <td style="padding: 15px; color: var(--gray);">@item.Quantity</td>
+                        <td style="padding: 15px; text-align: right; color: var(--accent-orange); font-weight: 600;">@((item.Price * item.Quantity).ToString("N0")) تومان</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="padding: 15px; text-align: right; font-weight: 600; color: var(--primary-navy);">جمع کل:</td>
+                    <td style="padding: 15px; text-align: right; font-weight: 700; color: var(--accent-orange); font-size: 18px;">@Model.TotalAmount.ToString("N0") تومان</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="/Admin/Orders" class="btn btn-outline"><i class="fas fa-arrow-right"></i> بازگشت به سفارش‌ها</a>
+    </div>
+</div>
