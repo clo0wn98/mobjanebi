@@ -18,8 +18,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Set port
-ENV ASPNETCORE_URLS=http://+:${PORT:-5000}
+# Set environment variables
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:5000
+
+# Expose port
 EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "EShop.dll"]
