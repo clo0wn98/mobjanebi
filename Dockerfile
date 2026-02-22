@@ -20,6 +20,6 @@ COPY --from=build /app/publish .
 
 # Set port
 ENV ASPNETCORE_URLS=http://+:${PORT:-5000}
-EXPOSE 5000
+EXPOSE ${PORT:-5000}
 
 ENTRYPOINT ["dotnet", "EShop.dll"]
