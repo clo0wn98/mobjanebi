@@ -24,6 +24,7 @@ RUN mkdir -p /app/data
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:5000
+ENV ConnectionStrings__DefaultConnection=Data Source=/app/data/EShop.db
 
 # Expose port
 EXPOSE 5000
