@@ -18,15 +18,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Create data directory for SQLite database
-RUN mkdir -p /app/data
-
-# Set environment variables
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:5000
-ENV ConnectionStrings__DefaultConnection=Data Source=/app/data/EShop.db
-
-# Expose port
-EXPOSE 5000
+# Set port
+ENV ASPNETCORE_URLS=http://+:${PORT:-5000}
+EXPOSE ${PORT:-5000}
 
 ENTRYPOINT ["dotnet", "EShop.dll"]
